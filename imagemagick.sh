@@ -26,4 +26,4 @@ do
         results/annotated/$filename
 done
 
-convert `find annotated -type f -name "*.png" -print0 | xargs -0 ls -tlr | awk '{print $9}'` movie.mp4
+convert `find results/annotated -type f -name "*.png" -print0 | xargs -0 ls -tlr | awk '{print $9}'` movie.mp4
