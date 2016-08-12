@@ -50,7 +50,7 @@ done
 
 # Run makeImageForDay via xargs
 export -f makeImageForDay
-echo $args | xargs -P8 -n3 -I{} bash -c "makeImageForDay {}"
+# echo $args | xargs -P8 -n3 -I{} bash -c "makeImageForDay {}"
 
 #####
 # For some reason imagemagick is producing corrupt files when doing this the old way:
@@ -66,8 +66,9 @@ rm results/copies/*
 for i in $filenameList;
 do
     cp results/annotated/$i results/copies/$(printf "%05d.png" $j);
+    echo cp results/annotated/$i results/copies/$(printf "%05d.png" $j);
     j=$((j+1));
 done
 
 # Finally, create the video
-ffmpeg -r 12 -i ./results/copies/%05d.png -c:v h264 -pix_fmt yuv420p movie.mp4
+ffmpeg -f image2 -i ./results/copies/%05d.png -vf scale=800x450,setsar=1 -c:v libx264 -pix_fmt yuv420p -profile:v main -coder 0 -preset veryslow -crf 22 -threads 0 movie.mp4
