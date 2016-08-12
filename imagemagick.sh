@@ -34,6 +34,7 @@ mkdir -p results results/montages results/annotated results/intermediates
 
 # Create an argument list to be passed into xargs for makeImageForDay
 args=""
+filenameList=""
 for date in $dateList;
 do
     filesOnThisDate=$(echo "$allFiles" | grep -p "$date" | awk '{print $10}')
@@ -44,6 +45,7 @@ do
 
     filename=${dateWithoutRegex}.png
     args="$args '\"$filesOnThisDate\"' '\"$filename\"' '\"$dateWithSpaces\"'"
+    filenameList="$filenameList $filename"
 done
 
 # Run makeImageForDay via xargs
@@ -58,13 +60,12 @@ echo $args | xargs -P8 -n3 -I{} bash -c "makeImageForDay {}"
 #####
 
 # Sort the annotated images by date and copy to a ffmpeg-friendly filename
-sortedPNGs=$(find results/annotated -type f -name "*.png" -print0 | xargs -0 ls -tlr $allPNGs | awk '{print $9}')
 j=0;
 mkdir -p results/copies
 rm results/copies/*
-for i in $sortedPNGs;
+for i in $filenameList;
 do
-    cp $i results/copies/$(printf "%05d.png" $j);
+    cp results/annotated/$i results/copies/$(printf "%05d.png" $j);
     j=$((j+1));
 done
 
