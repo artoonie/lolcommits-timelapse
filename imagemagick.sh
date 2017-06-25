@@ -3,7 +3,7 @@
 
 # Prepare the input and output
 allFiles=$(ls -lRtTr ~/.lolcommits/*/*.jpg ) # T: always print year, t: sort by date, r: reverse
-dateList=$(echo "$allFiles" | awk '{printf("%s\\s*%d.*%d\n", $6, $7, $9)}' | uniq)
+dateList=$(echo "$allFiles" | awk '{printf("%s\\s*%d\\s.*%d\n", $6, $7, $9)}' | uniq)
 mkdir -p results results/montages results/annotated results/intermediates
 
 # Create an argument list to be passed into xargs for makeImageForDay
