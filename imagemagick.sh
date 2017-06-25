@@ -1,32 +1,6 @@
 #!/bin/bash
 # See the README for usage
 
-# This function generates a single image for the given day,
-# designed to be run in the background with xargs
-function makeImageForDay()
-{
-    filesOnThisDate=$1
-    filename=$2
-    dateWithSpaces=$3
-    if [ "$dateWithSpaces" == "" ]; then
-        # Sometimes xargs has some extra crust at the end of its arg list
-        return
-    fi
-
-    # echo $filesOnThisDate :: $filename :: $dateWithSpaces # For debugging
-    montage -geometry 640x480 -background Black $filesOnThisDate results/montages/$filename
-
-    convert results/montages/$filename \
-        -resize 800x450 -size 800x450\! \
-        -gravity north  -extent 800x450 \
-        results/intermediates/$filename
-    convert results/intermediates/$filename \
-        -gravity south -pointsize 30 \
-        -stroke '#000C' -strokewidth 10 -annotate 0 "$dateWithSpaces" \
-        -stroke  none   -fill white     -annotate 0 "$dateWithSpaces" \
-        results/annotated/$filename
-}
-
 # Prepare the input and output
 allFiles=$(ls -lRtTr ~/.lolcommits/*/*.jpg ) # T: always print year, t: sort by date, r: reverse
 dateList=$(echo "$allFiles" | awk '{printf("%s\\s*%d.*%d\n", $6, $7, $9)}' | uniq)
@@ -44,13 +18,12 @@ do
     echo $dateWithSpaces
 
     filename=${dateWithoutRegex}.png
-    args="$args '\"$filesOnThisDate\"' '\"$filename\"' '\"$dateWithSpaces\"'"
+    args="$args '$filesOnThisDate' '$filename' '$dateWithSpaces'"
     filenameList="$filenameList $filename"
 done
 
 # Run makeImageForDay via xargs
-export -f makeImageForDay
-# echo $args | xargs -P8 -n3 -I{} bash -c "makeImageForDay {}"
+echo $args | xargs -P9 -n3 ./makeImageForDay.sh
 
 #####
 # For some reason imagemagick is producing corrupt files when doing this the old way:
